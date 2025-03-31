@@ -1,29 +1,58 @@
-const sliderImage = document.getElementById("slider-image");
-const prevButton = document.getElementById("prev-button");
-const nextButton = document.getElementById("next-button");
+var nextBtn = document.querySelector(".next"),
+  prevBtn = document.querySelector(".prev"),
+  carousel = document.querySelector(".carousel"),
+  list = document.querySelector(".list"),
+  item = document.querySelectorAll(".item"),
+  runningTime = document.querySelector(".carousel .timeRunning");
 
-const images = [
-  "/api/placeholder/600/400",
-  "/api/placeholder/600/400",
-  "/api/placeholder/600/400",
-  "/api/placeholder/600/400",
-];
+let timeRunning = 3000;
+let timeAutoNext = 7000;
 
-let currentIndex = 0;
+nextBtn.onclick = function () {
+  showSlider("next");
+};
 
-function updateImage() {
-  sliderImage.src = images[currentIndex];
+prevBtn.onclick = function () {
+  showSlider("prev");
+};
+
+let runTimeOut;
+
+let runNextAuto = setTimeout(() => {
+  nextBtn.click();
+}, timeAutoNext);
+
+function resetTimeAnimation() {
+  runningTime.style.animation = "none";
+  runningTime.offsetHeight; /* trigger reflow */
+  runningTime.style.animation = null;
+  runningTime.style.animation = "runningTime 7s linear 1 forwards";
 }
 
-nextButton.addEventListener("click", () => {
-  currentIndex = (currentIndex + 1) % images.length;
-  updateImage();
-});
+function showSlider(type) {
+  let sliderItemsDom = list.querySelectorAll(".carousel .list .item");
+  if (type === "next") {
+    list.appendChild(sliderItemsDom[0]);
+    carousel.classList.add("next");
+  } else {
+    list.prepend(sliderItemsDom[sliderItemsDom.length - 1]);
+    carousel.classList.add("prev");
+  }
 
-prevButton.addEventListener("click", () => {
-  currentIndex = (currentIndex - 1 + images.length) % images.length;
-  updateImage();
-});
+  clearTimeout(runTimeOut);
 
-// Initialize first image
-updateImage();
+  runTimeOut = setTimeout(() => {
+    carousel.classList.remove("next");
+    carousel.classList.remove("prev");
+  }, timeRunning);
+
+  clearTimeout(runNextAuto);
+  runNextAuto = setTimeout(() => {
+    nextBtn.click();
+  }, timeAutoNext);
+
+  resetTimeAnimation(); // Reset the running time animation
+}
+
+// Start the initial animation
+resetTimeAnimation();
